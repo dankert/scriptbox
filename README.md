@@ -1,12 +1,28 @@
-# Script Sandbox
+# Script Sandbox for PHP
+
+## Overview
 
 This is a script interpreter for PHP. Custom code is parsed and interpreted in a sandbox.
+
+The code syntax is similar to [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript). More precisely, it is a subset of Javascript.
+
+## History 
 
 It was written for the [OpenRat CMS](http://www.openrat.de) and is maintained there.
 
 
+## Details
 
-## Using
+Scriptbox is an in-memory script interpreter written in PHP. The scripts are interpreted directly in the syntax tree and are **not** transpiled to PHP code.
+
+A script is running in its sandbox, but it may call functions in your PHP code if you provide appropriate classes (see below).
+
+It consists of a lexer, a syntax parser and an interpreter.
+
+The scripts may be used as a [domain specific language (DSL)](https://en.wikipedia.org/wiki/Domain-specific_language) in your PHP application.
+
+
+## Usage
 
 There is the `dsl\executor\DslInterpreter` class to run your code:
 
@@ -15,7 +31,7 @@ There is the `dsl\executor\DslInterpreter` class to run your code:
 
 ### get output
 
-For getting the standard output, simple call `getOutput()`:
+For getting the standard output, simply call `getOutput()`:
 
     $interpreter = new DslInterpreter();
     $interpreter->runCode( $code );
@@ -29,7 +45,7 @@ you may add custom objects to the calling context
     $interpreter->addContext( [ 'mycontext'=> new MyContextObject() ]  );
     $interpreter->runCode( $code );
 
-Your class `MyContextObject` must implement `dsl\context\DslObject`,then your code my contain
+Your class `MyContextObject` must implement `dsl\context\DslObject`,then your code may contain
 
     mycontext.method();
 
@@ -61,8 +77,8 @@ are supported
 
 ### text
 
-    write( "this is a 'string'" );
-    write( 'this is a "string"' ); 
+    write( "this is a 'string'" );  // writes to standard out
+    write( 'this is a "string"' );  // writes to standard out 
     
 
 ### variables
@@ -72,7 +88,7 @@ variables and string concatenation:
     age = 18;
     write("my age is " + age );
 
-variables may be initialized with `let`,`var` or `const` but this is optional:
+variables *may* be initialized with `let`,`var` or `const` but this is optional:
 
     let age = 18; // "let" is optional and completely ignored
     write("my age is " + age );
@@ -118,7 +134,7 @@ Example
 
 ### full arithmetic calculations
    
-    write( 1 + 2 * 3 ); // this resolves to 7 because of the priority
+    write( 1 + 2 * 3 ); // this resolves to 7 because of the operator priority
 
 ### arrays and for loops
 
@@ -132,9 +148,11 @@ Example
 
     write( "PI is " + Math.PI );
 
+    
 
 ## Unsupported
 
-there is NO support for
-- creating classes or objects
-- async, await
+- There is NO support for creating classes or objects.
+- Due to the request-based operation of the PHP interpreter there is no possibility for asynchronous methods like `async` or `await`.
+- No try/catch
+- No `window`, `document` or `navigator` objects

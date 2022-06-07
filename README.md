@@ -195,6 +195,10 @@ _Is it slow?_
 
 Yes, maybe, because there is no cache and no compilation to native PHP code. But this scriptbox targets content management systems which have their own caching.
 
+_Is it safe?_
+
+Yes, because the code is sandboxed. No PHP functions are available for the script. The default objects (Math, Number, Array) are safe. But please be careful if you are exposing your internal PHP functions oder objects into the context.
+
 _Why did you do this?_
 
 Because it was possible ;) And I needed a sandboxed DSL (domain specific language) for my CMS.

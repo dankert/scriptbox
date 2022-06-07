@@ -148,7 +148,13 @@ Example
 
     write( "PI is " + Math.PI );
 
-    
+### throw
+
+    throw "this is an error";
+
+The message is thrown as a DslRuntimeException and is able to be catched from the calling PHP code.
+
+Hint: try/catch blocks in scripts are not supported.
 
 ## Template script
 

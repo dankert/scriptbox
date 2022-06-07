@@ -150,9 +150,45 @@ Example
 
     
 
+## Template script
+
+Remember Smarty and Twig? Yes, but both have their strange syntax. Check out this template parser with a JSP-like syntax:
+
+    <html>
+    <body>
+    <% age = 12; %>
+    Next year your age is <%= (age+1) %></br>
+
+
+### Usage
+
+    // Parse the template, this will create a plain script
+    $templateParser = new DslTemplate();
+    $templateParser->parseTemplate($src);
+
+    // That's all. Lets start the interpreter
+    $executor = new DslInterpreter();
+    $executor->runCode($templateParser->script);
+    echo( $executor->getOutput() ); // get the output
+
+
 ## Unsupported
 
 - There is NO support for creating classes or objects.
 - Due to the request-based operation of the PHP interpreter there is no possibility for asynchronous methods like `async` or `await`.
 - No try/catch
 - No `window`, `document` or `navigator` objects
+
+## FAQ
+
+_Does it generate PHP code?_
+
+No. The Interpreter works in memory. There is no way to create PHP code, even if it would be possible to implement.
+
+_Is it slow?_
+
+Yes, maybe, because there is no cache and no compilation to native PHP code. But this scriptbox targets content management systems which have their own caching.
+
+_Why did you do this?_
+
+Because it was possible ;) And I needed a sandboxed DSL (domain specific language) for my CMS.

@@ -5,7 +5,7 @@ use dsl\executor\DslInterpreter;
 require('./autoload.php');
 
 ?><html>
-<head><title>Script Sandbox</title>
+<head><title>Scriptbox</title>
 <style>
     textarea {
         width: 100%;
@@ -16,9 +16,8 @@ require('./autoload.php');
 <body>
 
 
-</body></html>
-<h1>Script Sandbox</h1>
-<p>Script sandbox for PHP. The syntax is a subset of Javascript. The interpreter is supporting functions, full arithmetic calculations, for-loops, if-else statements.
+<h1>Scriptbox</h1>
+<p>Scriptbox is a Script sandbox for PHP.</p><p>The syntax is a subset of Javascript.<br/> The interpreter is supporting functions, full arithmetic calculations, for-loops, if-else statements.
 </p>
     <?php $code = @$_POST['code'] ?: <<<DEF
 // Script sandbox
@@ -64,12 +63,12 @@ for( name of names ) {
 DEF
    ; ?>
 
-<legend title="Script output">
-<pre>
-    <?php
+<fieldset>
+<legend>Output</legend>
+<pre><?php
     try {
         error_reporting( E_ALL );
-        $interpreter = new DslInterpreter( DslInterpreter::FLAG_SHOW_ERROR + DslInterpreter::FLAG_SHOW_TRACE );
+        $interpreter = new DslInterpreter( DslInterpreter::FLAG_SHOW_ERROR  );
         $interpreter->runCode( $code );
         echo htmlentities( $interpreter->getOutput() );
     } catch( Exception $e ) {
@@ -77,8 +76,14 @@ DEF
         echo "Unexcepted error while running the script: \n".htmlentities( $e->getMessage() )."\n";
     }
     ?>
-</pre></legend>
-<form action="./" method="POST"><textarea name="code"><?php echo htmlentities( $code ) ?>
-</textarea>
-<input type="submit" value="Execute code"/>
-</form>
+</pre>
+</fieldset>
+    <fieldset>
+        <legend>Source</legend>
+        <form action="./" method="POST">
+            <textarea name="code" rows="50" style="border:0;"><?php echo htmlentities( $code ) ?></textarea>
+            <input type="submit" value="Execute" />
+        </form>
+    </fieldset>
+
+</body></html>

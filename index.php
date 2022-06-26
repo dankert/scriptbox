@@ -20,16 +20,43 @@ require('./autoload.php');
 <h1>Script Sandbox</h1>
 <p>Script sandbox for PHP. The syntax is a subset of Javascript. The interpreter is supporting functions, full arithmetic calculations, for-loops, if-else statements.
 </p>
-    <?php $code = $_POST['code'] ?: <<<DEF
+    <?php $code = @$_POST['code'] ?: <<<DEF
 // Script sandbox
 // Feel free to write some code here....
-write( "test" );
+//write( "test" );
 
 /**
-*/
-function name() {
+ * functions without parameters
+ */
+function something() {
         return "something";
 }
+
+write( "I wrote " + something() + "\\n" );
+
+/**
+ * functions with parameters
+ */
+function sayName( name ) {
+  write( "your name is " + name + "\\n" );
+}
+
+sayName("Alice");
+
+// Arithmetic magic 
+write( "Arithmetic magic: 1 + 2 * (3 + 2) = " );
+write(  1 + 2 * (3 + 2)  );
+write( "\\n" );
+
+
+
+// lists...
+names = Array.of("Alice","Bob",something() );
+
+for( name of names ) {
+   write( "A name: " + name + "\\n");
+}
+
 DEF
    ; ?>
 

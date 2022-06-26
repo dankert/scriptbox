@@ -38,11 +38,12 @@ DEF
     <?php
     try {
         error_reporting( E_ALL );
-        $interpreter = new DslInterpreter();
+        $interpreter = new DslInterpreter( DslInterpreter::FLAG_SHOW_ERROR + DslInterpreter::FLAG_SHOW_TRACE );
         $interpreter->runCode( $code );
         echo htmlentities( $interpreter->getOutput() );
     } catch( Exception $e ) {
-        echo htmlentities( $e->getMessage() );
+        // should never happen because the interpreter catches all.
+        echo "Unexcepted error while running the script: \n".htmlentities( $e->getMessage() )."\n";
     }
     ?>
 </pre></legend>

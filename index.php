@@ -49,14 +49,18 @@ write(  1 + 2 * (3 + 2)  );
 write( "\\n" );
 
 
-
 // lists...
 names = Array.of("Alice","Bob",something() );
 
 for( name of names ) {
    write( "A name: " + name + "\\n");
-}
 
+   // some condition...
+   if   ( name == "Alice" )
+      write( "Hello Alice, nice to meet you! "+"\\n");
+   else
+      write( "Your are not Alice"+"\\n");
+}
 DEF
    ; ?>
 

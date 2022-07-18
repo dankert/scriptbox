@@ -5,6 +5,9 @@ namespace dsl\ast;
 use dsl\DslParserException;
 use dsl\DslRuntimeException;
 use dsl\DslToken;
+use dsl\standard\NumberInstance;
+use dsl\standard\ArrayInstance;
+use dsl\standard\StringInstance;
 
 class DslOperation implements DslStatement
 {
@@ -38,6 +41,12 @@ class DslOperation implements DslStatement
 			case '+':
 				if   ( is_string($left)  )
 					return $left . (string)$right;
+				if   ($left instanceof ArrayInstance)
+					return $left->concat( $right );
+				if   ($left instanceof StringInstance)
+					return $left->__toString() . (string)$right;
+				if   ($left instanceof NumberInstance)
+					return $left->toNumber() + intval($right);
 				else
 					return intval($left) + intval($right);
 

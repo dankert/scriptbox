@@ -4,6 +4,10 @@ namespace dsl\ast;
 
 use dsl\DslRuntimeException;
 use dsl\DslToken;
+use dsl\executor\DslInterpreter;
+use dsl\standard\NumberInstance;
+use dsl\standard\ArrayInstance;
+use dsl\standard\StringInstance;
 
 class DslFunctionCall implements DslStatement
 {
@@ -29,10 +33,6 @@ class DslFunctionCall implements DslStatement
 
 		$function = $this->name->execute( $context );
 
-
-		//if   ( ! array_key_exists( $name, $context ) )
-		//	throw new DslRuntimeException('function \''.$this->name.'\' does not exist.');
-
 		if   ( $this->parameters == null )
 			$parameterValues = []; // parameterless functions.
 		else
@@ -44,7 +44,7 @@ class DslFunctionCall implements DslStatement
 
 
 		if   ( $function instanceof DslFunction ) {
-
+			// inscript custom function
 			$parameters = $function->parameters;
 
 			if   ( sizeof($parameters) > sizeof($parameterValues) )
@@ -59,8 +59,7 @@ class DslFunctionCall implements DslStatement
 		}
 		elseif   ( is_callable($function) ) {
 
-			//var_export( call_user_func_array( $function, $parameterValues) );
-			return call_user_func_array( $function, $parameterValues);
+			return DslExpression::convertValueToStandardObject( call_user_func_array( $function, $this->toPrimitiveValues($parameterValues)) );
 		}
 		else
 			throw new DslRuntimeException('function is not callable'.var_export($function));
@@ -69,5 +68,26 @@ class DslFunctionCall implements DslStatement
 	public function parse($tokens)
 	{
 		$this->statements[] = $tokens;
+	}
+
+
+	/**
+	 * Converts variables to its primitives, because external objects in applications will not be able to handle things like "StandardString".
+	 * @param $parameterValues
+	 * @return array
+	 */
+	private function toPrimitiveValues( $parameterValues )
+	{
+		return array_map( function( $val ) {
+			if   ( $val instanceof ArrayInstance )
+				return $val->getInternalValue();
+			if   ( $val instanceof NumberInstance )
+				return $val->toNumber();
+			if   ( $val instanceof StringInstance )
+				return (string)$val;
+
+			return $val;
+
+		},$parameterValues );
 	}
 }

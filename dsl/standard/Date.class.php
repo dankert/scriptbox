@@ -48,7 +48,7 @@ class Date extends BaseScriptableObject
 
 	public function __toString()
 	{
-		return date('r');
+		return date('r',$this->time);
 	}
 
 

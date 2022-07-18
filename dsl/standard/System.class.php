@@ -4,6 +4,11 @@ namespace dsl\standard;
 
 use dsl\context\BaseScriptableObject;
 
+/**
+ * System information.
+ *
+ * @package dsl\standard
+ */
 class System extends BaseScriptableObject
 {
 	/**
@@ -30,6 +35,6 @@ class System extends BaseScriptableObject
 	 */
 	public function env( $name ) {
 
-		return getenv('SCRIPTBOX_'.$name);
+		return getenv( 'SCRIPTBOX_'.$name );
 	}
 }

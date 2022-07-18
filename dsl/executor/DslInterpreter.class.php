@@ -5,12 +5,18 @@ namespace dsl\executor;
 use dsl\DslAstParser;
 use dsl\DslException;
 use dsl\DslLexer;
+use dsl\standard\ArrayWrapper;
+use dsl\standard\NumberInstance;
+use dsl\standard\NumberWrapper;
 use dsl\standard\Script;
-use dsl\standard\StandardArray;
-use dsl\standard\StandardDate;
-use dsl\standard\StandardMath;
+use dsl\standard\ArrayInstance;
+use dsl\standard\DateWrapper;
+use dsl\standard\MathWrapper;
+use dsl\standard\StringInstance;
+use dsl\standard\StringWrapper;
 use dsl\standard\System;
-use dsl\standard\Write;
+use dsl\standard\Writer;
+use dsl\standard\WriteWrapper;
 
 class DslInterpreter
 {
@@ -23,27 +29,41 @@ class DslInterpreter
 
 	/**
 	 * Holds a reference to the write()-Function for getting the output buffer after execution.
-	 * @var Write
+	 * @var Writer
 	 */
 	private $writer;
 	private $flags;
 
-	const FLAG_SHOW_ERROR  = 1;
-	const FLAG_SHOW_TRACE  = 2;
-	const FLAG_THROW_ERROR = 4;
-	const FLAG_DEBUG       = 8;
+	const FLAG_SHOW_ERROR  =  1;
+	const FLAG_SHOW_TRACE  =  2;
+	const FLAG_THROW_ERROR =  4;
+	const FLAG_DEBUG       =  8;
+	const FLAG_SECURE      = 16;
 
-	public function __construct( $flags = self::FLAG_SHOW_ERROR )
+	private static $secure = true;
+
+	public function __construct( $flags = self::FLAG_SHOW_ERROR + self::FLAG_SECURE )
 	{
 		$this->flags = $flags;
 
+		self::$secure = boolval($this->flags & self::FLAG_SECURE );
+
 		// Standard-Globals
 		$this->addContext( [
-			'System'=> new System(),
-			'Math'  => new StandardMath(),
-			'Array' => new StandardArray(),
-			'Date'  => new StandardDate(),
-			'write' => $this->writer = new Write(),
+
+			// Standard JS objects
+			'Math'   => new MathWrapper(),
+			'Array'  => new ArrayWrapper(),
+			'String' => new StringWrapper(),
+			'Number' => new NumberWrapper(),
+			'Date'   => new DateWrapper(),
+
+			// Custom Scriptbox objects
+			'System'  => new System(),
+			'write'   => $this->writer = new Writer(),
+			'writeln' => new WriteWrapper( $this->writer,"\n" ),
+			'print'   => new WriteWrapper( $this->writer,'' ),
+			'println' => new WriteWrapper( $this->writer,"\n" ),
 		] );
 	}
 
@@ -105,5 +125,12 @@ class DslInterpreter
 	public function getOutput() {
 
 		return $this->writer->buffer;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isSecure() {
+		return self::$secure;
 	}
 }

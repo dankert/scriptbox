@@ -17,12 +17,17 @@ class DslLexer
 		'return'   => DslToken::T_RETURN,
 		'new'      => DslToken::T_NEW,
 		'throw'    => DslToken::T_THROW,
+		'null'     => DslToken::T_NULL,
+		'true'     => DslToken::T_TRUE,
+		'false'    => DslToken::T_FALSE,
+	];
+
+	const IGNORED_KEYWORDS = [
+		'let',
+		'new',
 	];
 
 	const UNUSED_KEYWORDS = [
-		'null',
-		'true',
-		'false',
 		'implements',
 		'interface',
 		'package',
@@ -32,8 +37,9 @@ class DslLexer
 		'static',
 		'in',
 		'do',
-		'new',
 		'try',
+		'catch',
+		'finally',
 		'this',
 		'case',
 		'void',
@@ -41,8 +47,6 @@ class DslLexer
 		'enum',
 		'while',
 		'break',
-		'catch',
-		'throw',
 		'yield',
 		'class',
 		'super',
@@ -52,11 +56,11 @@ class DslLexer
 		'export',
 		'import',
 		'default',
-		'finally',
 		'extends',
 		'continue',
 		'debugger',
 		'instanceof',
+		'goto', // ;)
 		];
 	/**
 	 * @param $code
@@ -165,8 +169,11 @@ class DslLexer
 					} else {
 						$type = DslToken::T_STRING;
 
-						if   ( array_key_exists($value,self::UNUSED_KEYWORDS ) )
+						if   ( array_search($value,self::UNUSED_KEYWORDS ) !== false )
 							throw new DslParserException( 'use of reserved word \''.$value.'\' is not allowed.');
+
+						if   ( array_search($value,self::IGNORED_KEYWORDS ) !== false )
+							break; // ignore this keyword
 
 						if   ( array_key_exists($value,self::KEYWORDS ) )
 							$type = self::KEYWORDS[$value]; // it is a keyword
@@ -180,12 +187,15 @@ class DslLexer
 			}
 
 			// Numbers
+			// TODO we have a problem with
+			// - "-" is an operator, so we cannot parse negative numbers
+			// - "." is the property char, so we cannot parse decimal values
 			if   ( $char >= '0' && $char <= '9' ) {
 				$value = $char;
 				while( true ) {
 					$char = array_shift( $chars );
 					if   ( ( $char >= '0' && $char <= '9') ||
-						$char == '.' || $char == '_' ) {
+						$char == '_' ) {
 						$value .= $char;
 					} else {
 						$this->addToken( $line,DslToken::T_NUMBER,str_replace('_','',$value ));

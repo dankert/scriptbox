@@ -5,6 +5,11 @@ namespace dsl\ast;
 use cms\generator\dsl\DslObject;
 use dsl\context\Scriptable;
 use dsl\DslRuntimeException;
+use dsl\executor\DslInterpreter;
+use dsl\standard\Data;
+use dsl\standard\NumberInstance;
+use dsl\standard\ArrayInstance;
+use dsl\standard\StringInstance;
 
 class DslProperty implements DslStatement
 {
@@ -32,35 +37,39 @@ class DslProperty implements DslStatement
 
 		$object = $this->variable->execute( $context );
 
-		$objectContext = [];
-
 		if   (  is_object( $object ) ) {
 
-			$objectContext = get_object_vars( $object );
+			if   ( $object instanceof Data ) {
+				$objectContext = $object->getData();
+			}
+			else {
 
-			// copy object methods to the object context to make them callable.
-			foreach( get_class_methods( $object ) as $method ) {
-				$objectContext[ $method ] = function() use ($method, $object) {
+				// object attributes
+				$objectContext = get_object_vars( $object );
 
-					// For Security: Do not expose all available objects, they must implement a marker interface.
-					if   ( ! $object instanceof Scriptable )
-						throw new DslRuntimeException('security: Object '.get_class($object).' is not scriptable and therefore not available in script context');
+				//if   ( $object instanceof StandardArray ) {
+				//	foreach( $object->getInternalValue() as $key=> $value )
+				//		$objectContext[$key] = $value;
+				//}
 
-					return call_user_func_array( array($object,$method),func_get_args() );
-				};
+				// copy object methods to the object context to make them callable.
+				foreach( get_class_methods( $object ) as $method ) {
+					$objectContext[ $method ] = function() use ($method, $object) {
+
+						// For Security: Do not expose all available objects, they must implement a marker interface.
+						if   ( DslInterpreter::isSecure() && ! $object instanceof Scriptable )
+							throw new DslRuntimeException('Object '.get_class($object).' is not marked as scriptable and therefore not available in secure mode');
+
+						return call_user_func_array( array($object,$method),func_get_args() );
+					};
+				}
 			}
 		}
-		elseif   (  is_array( $object ) ) {
-
-			$objectContext = $object;
-
-		} else {
-
-			throw new DslRuntimeException('not an object');
+		else {
+			$objectContext = DslExpression::convertValueToStandardObject($object);
 		}
 
 		$prop = $this->property->execute( $objectContext );
-
 
 		return $prop;
 	}
